@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 
-class UserController
+class UserController extends Controller
 {
     /**
      * Display a listing of the resource.

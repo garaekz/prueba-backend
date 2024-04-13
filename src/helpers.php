@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Container\Container;
 use Illuminate\Support\Env;
 
-if (! function_exists('value')) {
+if (!function_exists('value')) {
     /**
      * Return the default value of the given value.
      *
@@ -17,7 +16,7 @@ if (! function_exists('value')) {
     }
 }
 
-if (! function_exists('env')) {
+if (!function_exists('env')) {
     /**
      * Gets the value of an environment variable.
      *
