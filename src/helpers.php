@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Env;
-
 if (!function_exists('value')) {
     /**
      * Return the default value of the given value.
@@ -26,6 +24,20 @@ if (!function_exists('env')) {
      */
     function env($key, $default = null)
     {
-        return Env::get($key, $default);
+        $value = $_ENV[$key] ?? getenv($key);
+        return $value === false ? $default : $value;
+    }
+}
+
+if (!function_exists('bcrypt')) {
+    /**
+     * Hash the given value.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    function bcrypt($value)
+    {
+        return password_hash($value, PASSWORD_DEFAULT);
     }
 }
