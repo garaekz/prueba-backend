@@ -3,75 +3,37 @@
 namespace Garaekz\Bootstrap;
 
 use Dotenv\Dotenv;
-use Dotenv\Exception\InvalidFileException;
-use Illuminate\Support\Env;
+use Dotenv\Exception\InvalidPathException;
 
-/**
- * Load environment variables from .env file.
- * 
- * Based on Laravel's LoadEnvironmentVariables class.
- */
 class LoadEnvironmentVariables
 {
-    /**
-     * LoadEnvironmentVariables constructor.
-     *
-     * @param  string  $filePath
-     * @param  string|null  $fileName
-     * @return void
-     */
-    public function __construct(protected $filePath, protected $fileName = null)
-    {}
+    protected $filePath;
+    protected $fileName;
 
-    /**
-     * Setup the environment variables or fail silently.
-     *
-     * @return void
-     */
+    public function __construct($filePath, $fileName = '.env')
+    {
+        $this->filePath = $filePath;
+        $this->fileName = $fileName;
+    }
+
     public function bootstrap()
     {
         try {
-            $this->createDotenv()->safeLoad();
-        } catch (InvalidFileException $e) {
+            $dotenv = Dotenv::createImmutable($this->filePath, $this->fileName);
+            $dotenv->load();
+        } catch (InvalidPathException $e) {
             $this->writeErrorAndDie([
-                'The environment file is invalid!',
+                "The environment file is missing!",
                 $e->getMessage(),
             ]);
         }
     }
 
-    /**
-     * Create a Dotenv instance.
-     *
-     * @return \Dotenv\Dotenv
-     */
-    protected function createDotenv()
-    {
-        return Dotenv::create(
-            Env::getRepository(),
-            $this->filePath,
-            $this->fileName
-        );
-    }
-
-    /**
-     * Write the error information to the screen and exit.
-     *
-     * @param  string[]  $errors
-     * @return void
-     */
-    /**
-     * Write the error information to the screen and exit.
-     *
-     * @param  string[]  $errors
-     * @return void
-     */
     protected function writeErrorAndDie(array $errors)
     {
         foreach ($errors as $error) {
             echo $error . PHP_EOL;
         }
-
         exit(1);
     }
 }

@@ -2,14 +2,18 @@
 
 use Garaekz\Application;
 
-require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+(new Garaekz\Bootstrap\LoadEnvironmentVariables(
+    __DIR__,
+))->bootstrap();
 
 $app = new Application(dirname(__DIR__));
 
 $app->router->group([
     'namespace' => 'App\Controllers',
 ], function ($router) {
-    require __DIR__.'/routes/api.php';
+    require __DIR__ . '/routes/api.php';
 });
 
 $app->run();
