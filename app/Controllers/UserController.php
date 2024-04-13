@@ -2,7 +2,16 @@
 
 namespace App\Controllers;
 
+use App\Actions\StoreUserAction;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use Garaekz\Http\Request;
+use App\Models\User;
 
+/**
+ * This class represents the controller for managing user-related operations.
+ * It extends the base Controller class.
+ */
 class UserController extends Controller
 {
     /**
@@ -10,9 +19,12 @@ class UserController extends Controller
      *
      * @return void
      */
-    public function index()
+    public function index(Request $request)
     {
-        dd('Hello, User!');
+        $page = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10);
+        $users = User::paginate($page, $perPage);
+        return $this->jsonPaginate($users);
     }
 
     /**
@@ -23,7 +35,14 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        dd('Hello, User! ID: ' . $id);
+        try {
+            $user = User::findOrFail($id);
+            return $this->jsonResponse($user);
+        } catch (\Exception $e) {
+            return $this->jsonResponse([
+                'message' => $e->getMessage(),
+            ], 404);
+        }
     }
 
     /**
@@ -31,9 +50,12 @@ class UserController extends Controller
      *
      * @return void
      */
-    public function store()
+    public function store(StoreUserRequest $request, StoreUserAction $action)
     {
-        dd('Hello, User! Store');
+        $data = $request->validated();
+        $user = $action->execute($data);
+
+        return $this->jsonResponse($user, 201);
     }
 
     /**
@@ -42,9 +64,12 @@ class UserController extends Controller
      * @param  int  $id
      * @return void
      */
-    public function update($id)
+    public function update(UpdateUserRequest $request, $id, StoreUserAction $action)
     {
-        dd('Hello, User! Update ID: ' . $id);
+        $data = $request->validated();
+        $user = $action->execute($data, $id);
+
+        return $this->jsonResponse($user);
     }
 
     /**
@@ -55,6 +80,10 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        dd('Hello, User! Destroy ID: ' . $id);
+        User::destroy($id);
+
+        return $this->jsonResponse([
+            'message' => 'User deleted successfully',
+        ], 200);
     }
 }
