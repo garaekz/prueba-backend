@@ -2,21 +2,26 @@
 
 namespace Garaekz;
 
+use Garaekz\Exceptions\ErrorHandler;
 use Garaekz\Routing\Router;
 
-class Application {
+class Application
+{
     public $router;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->registerErrorHandler();
         $this->router = new Router($this);
     }
 
-    protected function registerErrorHandler() {
-        // TODO: Error handler robusto? Tal vez usar algo ya hecho
+    protected function registerErrorHandler()
+    {
+        ErrorHandler::register();
     }
 
-    public function run() {
+    public function run()
+    {
         $this->router->run();
     }
 }
