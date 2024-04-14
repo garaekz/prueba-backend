@@ -12,6 +12,7 @@ $app = new Application(dirname(__DIR__));
 
 $app->router->group([
     'namespace' => 'App\Controllers',
+    'prefix' => '/api/v1',
 ], function ($router) {
     require __DIR__ . '/routes/api.php';
 });
