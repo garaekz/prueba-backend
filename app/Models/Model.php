@@ -123,9 +123,14 @@ abstract class Model
      * 
      * @return array
      */
-    public static function paginate($page = 1, $perPage = 15, $columns = ['*'])
+    public static function paginate($page = 1, $perPage = 15, $columns = ['*'], $whereClauses = [])
     {
         $query = static::query()->select($columns);
+
+        foreach ($whereClauses as $field => $value) {
+            $query->where($field, $value);
+        }
+
         $total = $query->count('id');
         $results = $query->limit($perPage)->offset(($page - 1) * $perPage)->get();
 
@@ -179,5 +184,10 @@ abstract class Model
     public static function destroy($id)
     {
         return static::query()->where('id', $id)->delete();
+    }
+
+    public static function exists($id)
+    {
+        return static::query()->where('id', $id)->exists();
     }
 }

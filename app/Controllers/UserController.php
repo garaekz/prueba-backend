@@ -17,7 +17,7 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return void
+     * @return void|HttpResponse
      */
     public function index(Request $request)
     {
@@ -31,7 +31,7 @@ class UserController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return void
+     * @return void|HttpResponse
      */
     public function show($id)
     {
@@ -48,21 +48,26 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @return void
+     * @return void|HttpResponse
      */
     public function store(StoreUserRequest $request, StoreUserAction $action)
     {
-        $data = $request->validated();
-        $user = $action->execute($data);
-
-        return $this->jsonResponse($user, 201);
+        try {
+            $data = $request->validated();
+            $user = $action->execute($data);
+            return $this->jsonResponse($user, 201);
+        } catch (\Exception $e) {
+            return $this->jsonResponse([
+                'message' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  int  $id
-     * @return void
+     * @return void|HttpResponse
      */
     public function update(UpdateUserRequest $request, $id, StoreUserAction $action)
     {
@@ -76,14 +81,21 @@ class UserController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return void
+     * @return void|HttpResponse
      */
     public function destroy($id)
     {
+        $user = User::find($id);
+        if (!$user) {
+            return $this->jsonResponse([
+                'message' => 'Resource not found',
+            ], 404);
+        }
+
         User::destroy($id);
 
         return $this->jsonResponse([
             'message' => 'User deleted successfully',
-        ], 200);
+        ], 204);
     }
 }

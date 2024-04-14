@@ -59,7 +59,7 @@ class Request
 
         $contentType = $this->server['CONTENT_TYPE'] ?? $this->server['HTTP_CONTENT_TYPE'] ?? '';
 
-        if ($this->server['REQUEST_METHOD'] == 'PUT') {
+        if ($this->server('REQUEST_METHOD', 'POST') == 'PUT') {
             $inputContent = file_get_contents('php://input');
             if (stripos($contentType, 'application/json') !== false) {
                 $this->data = json_decode($inputContent, true) ?? [];
@@ -140,5 +140,27 @@ class Request
     public function server($key, $default = null)
     {
         return $this->server[$key] ?? $default;
+    }
+
+    /**
+     * Set the request data.
+     * 
+     * @param array $data
+     * 
+     * @return void
+     */
+    public function setData(array $data)
+    {
+        $this->data = $data;
+    }
+
+    /**
+     * Manually set the request method.
+     * 
+     * @return array
+     */
+    public function setMethod($method)
+    {
+        $this->server['REQUEST_METHOD'] = $method;
     }
 }

@@ -165,7 +165,8 @@ class QueryBuilder
      */
     public function count($column = '*')
     {
-        $sql = "SELECT COUNT({$column}) FROM {$this->table} " . ($this->wheres ? ' WHERE ' . implode(' AND ', $this->wheres) : '');
+        $where = !empty($this->wheres) ? " WHERE " . implode(' AND ', $this->wheres) : '';
+        $sql = "SELECT COUNT({$column}) FROM {$this->table}{$where}{$this->limit}";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($this->bindings);
         return $stmt->fetchColumn();
@@ -235,5 +236,14 @@ class QueryBuilder
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($this->bindings);
         return $stmt->rowCount();
+    }
+
+    public function exists()
+    {
+        $originalLimit = $this->limit;
+        $this->limit(1);
+        $exists = $this->count() > 0;
+        $this->limit = $originalLimit;
+        return $exists;
     }
 }

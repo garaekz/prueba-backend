@@ -25,7 +25,7 @@ class Router
      * @param callable $callback The callback function to define routes within the group.
      * @return void
      */
-    public function group($attributes, $callback)
+    public function group($attributes, callable $callback)
     {
         $this->updateGroupStack($attributes);
         call_user_func($callback, $this);
@@ -40,7 +40,26 @@ class Router
      */
     protected function updateGroupStack($attributes)
     {
+        if (!empty($this->groupStack)) {
+            $attributes = $this->mergeGroupAttributes($attributes, end($this->groupStack));
+        }
         $this->groupStack[] = $attributes;
+    }
+
+    /**
+     * Merges the attributes of a group with its parent attributes.
+     *
+     * @param array $attributes The attributes of the group.
+     * @param array $parentAttributes The attributes of the parent group.
+     * 
+     * @return array The merged attributes.
+     */
+    protected function mergeGroupAttributes($attributes, $parentAttributes)
+    {
+        if (isset($parentAttributes['prefix'])) {
+            $attributes['prefix'] = rtrim($parentAttributes['prefix'], '/') . '/' . ltrim($attributes['prefix'] ?? '', '/');
+        }
+        return $attributes;
     }
 
     /**
@@ -49,7 +68,7 @@ class Router
      * @param string $uri The URI to add the prefix to.
      * @return string The modified URI with the prefix.
      */
-    protected function prefix($uri)
+    public function prefix($uri)
     {
         $prefix = end($this->groupStack)['prefix'] ?? '';
         return rtrim($prefix, '/') . '/' . ltrim($uri, '/');
@@ -73,12 +92,12 @@ class Router
      * @param string $method The HTTP method of the route.
      * @param string $uri The URI of the route.
      * @param mixed $action The action of the route.
+     * 
      * @return void
      */
     protected function addRoute($method, $uri, $action)
     {
-        $uri = $this->prefix($uri);
-
+        $uri = $this->applyPrefix($uri);
         if (!is_callable($action) && is_string($action)) {
             $action = $this->resolveAction($action);
         }
@@ -88,6 +107,18 @@ class Router
             'uri' => $uri,
             'action' => $action
         ];
+    }
+
+    /**
+     * Applies the prefix to the given URI.
+     *
+     * @param string $uri The URI to apply the prefix to.
+     * @return string The modified URI with the prefix applied.
+     */
+    private function applyPrefix($uri)
+    {
+        $prefix = end($this->groupStack)['prefix'] ?? '';
+        return rtrim($prefix, '/') . '/' . ltrim($uri, '/');
     }
 
     /**
@@ -215,7 +246,6 @@ class Router
     public function handleRoute($route)
     {
         $parameters = $this->matchRoute($route, parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), $_SERVER['REQUEST_METHOD']);
-
         if ($parameters === false) {
             return;
         }

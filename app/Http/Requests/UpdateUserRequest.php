@@ -20,6 +20,7 @@ class UpdateUserRequest extends FormRequest
     public function rules()
     {
         return [
+            'fullname' => ['min:3'],
             'email' => ['email', 'unique:user,email'],
             'pass' => ['min:6'],
             'openid' => ['unique:user,openid'],
