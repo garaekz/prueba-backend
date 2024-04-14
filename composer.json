@@ -7,10 +7,20 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
-            "Garaekz\\": "src/"
+            "Garaekz\\": "src/",
+            "Tests\\": "tests/"
         },
         "files": [
             "src/helpers.php"
         ]
+    },
+    "require-dev": {
+        "pestphp/pest": "^2.34",
+        "pestphp/pest-plugin-faker": "^2.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     }
 }
